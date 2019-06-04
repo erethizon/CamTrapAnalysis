@@ -1,0 +1,9 @@
+---
+title: "Overview"
+author: "Erika"
+date: "6/4/2019"
+output: html_document
+---
+
+##This document is designed to provide an overview of the steps of working through zooniverse code to prepare it for analysis and then to do the analysis.
+
