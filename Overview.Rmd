@@ -8,6 +8,11 @@ output: html_document
 ##Introduction
 This document is designed to provide an overview of the steps of working through zooniverse code to prepare it for analysis and then to do the analysis.
 
+```{r}
+setwd("~/Dropbox/R/NoCoWild/CamTrapAnalysis") #may need to change depending on which computer you are working from
+```
+
+
 ##Data
 A sample data set, based on the [North Country Wild Phase 1 project](https://www.zooniverse.org/lab/8607) at the [Zooniverse](https://www.zooniverse.org) is found in this directory and is called "sampledata.csv".
 
@@ -23,6 +28,6 @@ The basic workflow for processing these data prior to analysis involves the foll
 
 The end result should be a flat file with species correctly identified that is ready to be wrangled into the proper format for another set of R processing steps for priliminary data analysis.
 
-The R code to accomplish steps 2 - 5 above is called *Flatten-zooniverse-NoCoWild.Rmd* and is located in this directory.
+The R code to accomplish steps 2 - 5 above is called *Flatten-zooniverse-NoCoWild.Rmd* and is located in the folder called *Flatten* in this directory.
 
 
