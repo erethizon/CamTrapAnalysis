@@ -66,6 +66,8 @@ project_name <- "NoCoWild"
 
 classifications_file<-
 "/Volumes/External Drive/Dropbox/R/JSON/no-co-wild-phase-1-_1Apr_classifications.csv"
+
+classifications_file<-"/Volumes/External Drive/Dropbox/R/NoCoWild/CamTrapAnalysis/sampledatasmall.csv"
 ```
 ####Examine data
 ```{r}
@@ -165,7 +167,7 @@ Now that we have flattened both the annotations and subject_data columns, we wou
 The join itself is pretty easy and uses the plyr package:
 ```{r}
 library(plyr)
-Flattened<-join(An_flattened, Sub_flattened, by='classification_id', type='right', match='all')
+Flattened<-plyr::join(An_flattened, Sub_flattened, by='classification_id', type='right', match='all')
 ```
 
 Now Save our result!
@@ -173,3 +175,4 @@ Now Save our result!
 Filename<-str_sub(classifications_file,end = -4)
 write.csv(Flattened, paste0(classifications_file,"-flattened.csv"), row.names = F)
 ```
+This all seems to work!

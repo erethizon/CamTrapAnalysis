@@ -9,7 +9,8 @@ output: html_document
 This document is designed to provide an overview of the steps of working through zooniverse code to prepare it for analysis and then to do the analysis.
 
 ```{r}
-setwd("~/Dropbox/R/NoCoWild/CamTrapAnalysis") #may need to change depending on which computer you are working from
+setwd("~/Dropbox/R/NoCoWild/CamTrapAnalysis") #from ELB laptop
+setwd("/Volumes/External Drive/Dropbox/R/NoCoWild/CamTrapAnalysis") #from computer in JHS 116
 ```
 
 
