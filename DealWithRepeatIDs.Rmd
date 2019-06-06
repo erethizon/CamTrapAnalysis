@@ -10,15 +10,43 @@ To that end, we need a way to check which events have differences in their ident
 The following bunch of R scripts takes the flattened classfication file produced by running the *Flatten-zooniverse-NoCoWild.Rmd* scripts and does the following:  
 
 1. Identify which events have more than one classification
-2. For those events with more than 1 classification,
+2. For those events with more than 1 classification, determine which ones have more than one species identified.
 
 ```{r}
-plot(cars)
+#set up workspace
+rm(list = ls())
+library(dplyr)
+library(ggplot2)
+```
+```{r}
+#pull in the data file
+classification_file<-"sampledatasmall.csv-flattened.csv"
+library(readr)
+DF<- read_csv(classification_file)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+Now let's find the repeats
+```{r}
+Repeats<-DF %>% group_by(subject_ids) %>% filter(n()>1)
+Repeats
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+#gives those subject ids that appear more than once
+```
+Now see if I can get a list of species ids for each subject that was classified more than once.  Try looping through the data by subject id's and putting answers in a new DF
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+First, determine how many there are of each subject id
+
+```{r}
+numSubjects <- DF %>% group_by(subject_ids) %>% summarise(
+	numObs = length(subject_ids)
+)
+
+#and get the ids of those with >1 classification
+
+repeatSubs<-filter(numSubjects, numObs > 1)
+
+#why do I get a different number? Because the summary doesn't include both cases of the repeat, but the Repeats list does.
+
+#so repeatSubs is the list of subjects that repeat > 1 time.  Can use it to loop if needed.
+```
 
