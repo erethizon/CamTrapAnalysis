@@ -40,7 +40,56 @@ First, determine how many there are of each subject id
 
 repeatSubjects<-unique(Repeats$subject_ids)
 
-
 #so repeatSubjects is the list of subjects that repeat > 1 time.  Can use it to loop if needed.
+```
+
+
+
+#### Total Number of Events  
+
+```{r}
+# change subject_ids to a factor
+DF$subject_ids <- as.factor(DF$subject_ids)
+
+str(DF)
+# subject_ids has 218 levels
+# 218 events
+```
+There are 218 events in the dataframe.  
+  
+   
+#### Events w/ One Classification
+```{r}
+# change subject_ids in "Repeats" to a factor
+Repeats$subject_ids <- as.factor(Repeats$subject_ids)
+
+str(Repeats)
+# subject_ids has 30 levels
+# 218-30 = 188
+```
+There are 188 events with only one classification.  
+
+
+#### Distribution of Number of Classifications
+```{r}
+# make dataframe of each event and the number of classifications made for it
+classNums <- filter(numSubjects, numObs >= 1)
+
+# use it to make a histogram
+ggplot(classNums, aes(numObs)) + 
+	geom_histogram() +
+	ylab("Number of Events") +
+	xlab("Number of Classifications Made") +
+	scale_x_continuous(breaks = c(1,2,3))
+```
+
+
+#### Number of Classifications and Unique Species for Events with >1 Classification  
+```{r}
+# dataframe of all events that have more than one classification
+repeatSubs <- filter(classNums, numObs > 1)
+
+
+#classedEvents <- merge(Repeats, repeatSubs, by=c("date", "file"), all = TRUE)
 ```
 
