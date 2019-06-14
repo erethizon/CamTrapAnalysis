@@ -8,16 +8,108 @@ One challenge we face is in getting our data into a format in which we can use s
 
 To do so, I need the R scripts they provide on their book [dropbox folder](https://www.dropbox.com/sh/5w4y6u7uq2mc2i3/AADjdBCrN_7tAg-UHAbhf8sFa?dl=0).
 
+Because .Rmd files can be a pain at working directories b/w code chunks, do the following:
+```{r setup, include=FALSE, cache = FALSE}
+require("knitr")
+## setting working directory
+opts_knit$set(root.dir = "/Volumes/External Drive/Dropbox/R/NoCoWild/CamTrapAnalysis/Camera Trapping for Wildlife Research/Chapter 5")
+```
+Prep workspace, set working directory, etc
+```{r}
+rm(list = ls())
+library(dplyr)
+library(ggplot2)
+library(readr)
 
+```
+## working through Chapter 5 case study
 
+Begin by sourcing the TEAM R scripts
+```{r}
+source("TEAM library 1.7.R")
+```
+Now load their suggested packages (which include ggplot2 already loaded above)
 
 ```{r}
-plot(cars)
+library(chron)
+library(reshape)
+library(vegan)
+library(plotrix)
+library(maptools)
 ```
+Now load their data file and our data file
+```{r}
+team<-read_csv("teamexample.csv")
+ours<-read_csv("sampledatasmall.csv-flattened.csv")
+```
+So far so good. Now let's compare how these two data frames are structured.
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+```{r}
+View(team)
+View(ours)
+```
+The team dataset includes the following columns:
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+Sampling.Unit.Name = col_character(),
+  Latitude = col_double(),
+  Longitude = col_double(),
+  Project.Name = col_character(),
+  Sampling.Event = col_double(),
+  Photo.Date = col_date(format = ""),
+  Photo.Time = col_time(format = ""),
+  Genus = col_character(),
+  Species = col_character(),
+  Number.of.Animals = col_double(),
+  Camera.Start.Date.and.Time = col_datetime(format = ""),
+  Camera.End.Date.and.Time = col_datetime(format = "")
+  
+Whereas our dataset includes the following:
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+classification_id = col_double(),
+  user_name = col_character(),
+  user_id = col_double(),
+  user_ip = col_character(),
+  workflow_id = col_double(),
+  workflow_name = col_character(),
+  workflow_version = col_double(),
+  created_at = col_character(),
+  gold_standard = col_logical(),
+  expert = col_logical(),
+  metadata = col_character(),
+  annotations = col_character(),
+  subject_data = col_character(),
+  subject_ids = col_double()
 
+And in our flattened file, the one we would probabaly be brining in to use their scripts, we have:
+
+classification_id = col_double(),
+  subject_ids = col_numeric,
+  user_name = col_character(),
+  workflow_version,
+  task_index,
+  task,
+  task_label,
+  value,
+  total_submissions,
+  submission_index,
+  choice,
+  choice.1, 
+  number, 
+  SnowDepth,
+  Young,
+  Antlers, 
+  Precipitation, 
+  a bunch of behavior columns, 
+  user_name_1, 
+  workflow_id, 
+  workflow_version_1,
+  ForestType,
+  ForestName, 
+  Image1, 
+  Image2,
+  Image3,
+  Camera,
+  SDCard, 
+  PhotoBatch,
+  Class_round
+  
