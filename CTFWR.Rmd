@@ -37,10 +37,10 @@ library(vegan)
 library(plotrix)
 library(maptools)
 ```
-Now load their data file and our data file
+## Now load their data file and our data file
 ```{r}
 team<-read_csv("teamexample.csv")
-ours<-read_csv("sampledatasmall.csv-flattened.csv")
+ours<-read_csv("/Volumes/External Drive/Dropbox/R/NoCoWild/CamTrapAnalysis/sampledatasmall.csv-flattened.csv")
 ```
 So far so good. Now let's compare how these two data frames are structured.
 
@@ -50,66 +50,105 @@ View(ours)
 ```
 The team dataset includes the following columns:
 
-Sampling.Unit.Name = col_character(),
-  Latitude = col_double(),
-  Longitude = col_double(),
-  Project.Name = col_character(),
-  Sampling.Event = col_double(),
-  Photo.Date = col_date(format = ""),
-  Photo.Time = col_time(format = ""),
-  Genus = col_character(),
-  Species = col_character(),
-  Number.of.Animals = col_double(),
-  Camera.Start.Date.and.Time = col_datetime(format = ""),
-  Camera.End.Date.and.Time = col_datetime(format = "")
+Sampling.Unit.Name = col_character(),  
+  Latitude = col_double(),  
+  Longitude = col_double(),  
+  Project.Name = col_character(),  
+  Sampling.Event = col_double(),  
+  Photo.Date = col_date(format = ""),  
+  Photo.Time = col_time(format = ""),  
+  Genus = col_character(),  
+  Species = col_character(),  
+  Number.of.Animals = col_double(),  
+  Camera.Start.Date.and.Time = col_datetime(format = ""),  
+  Camera.End.Date.and.Time = col_datetime(format = "")  
   
 Whereas our dataset includes the following:
 
-classification_id = col_double(),
-  user_name = col_character(),
-  user_id = col_double(),
-  user_ip = col_character(),
-  workflow_id = col_double(),
-  workflow_name = col_character(),
-  workflow_version = col_double(),
-  created_at = col_character(),
-  gold_standard = col_logical(),
-  expert = col_logical(),
-  metadata = col_character(),
-  annotations = col_character(),
-  subject_data = col_character(),
-  subject_ids = col_double()
+classification_id = col_double(),  
+  subject_ids = col_numeric,  
+  user_name = col_character(),  
+  workflow_version,  
+  task_index,  
+  task,  
+  task_label,  
+  value,  
+  total_submissions,  
+  submission_index,  
+  choice,  
+  choice.1,   
+  number,   
+  SnowDepth,  
+  Young,  
+  Antlers,   
+  Precipitation,   
+  a bunch of behavior columns,   
+  user_name_1,   
+  workflow_id,   
+  workflow_version_1,  
+  ForestType,  
+  ForestName,   
+  Image1,   
+  Image2,  
+  Image3,  
+  Camera,  
+  SDCard,   
+  PhotoBatch,  
+  Class_round  
 
-And in our flattened file, the one we would probabaly be brining in to use their scripts, we have:
+A primary difference between datasets is that theirs includes the date/time information and ours does not.  We may have to add it back from the manifest file we sent to the zooniverse.
 
-classification_id = col_double(),
-  subject_ids = col_numeric,
-  user_name = col_character(),
-  workflow_version,
-  task_index,
-  task,
-  task_label,
-  value,
-  total_submissions,
-  submission_index,
-  choice,
-  choice.1, 
-  number, 
-  SnowDepth,
-  Young,
-  Antlers, 
-  Precipitation, 
-  a bunch of behavior columns, 
-  user_name_1, 
-  workflow_id, 
-  workflow_version_1,
-  ForestType,
-  ForestName, 
-  Image1, 
-  Image2,
-  Image3,
-  Camera,
-  SDCard, 
-  PhotoBatch,
-  Class_round
-  
+## Continue with their steps
+Their next step is to add taxonomic attributes so that they can then sort by taxon.  We don't need to do this step on our data, but I'll do it on their so that I can see how their data file is being changed with each step.
+
+```{r}
+iucn.full<-read.csv("/Volumes/External Drive/Dropbox/R/NoCoWild/CamTrapAnalysis/Camera Trapping for Wildlife Research/Chapter 5/IUCN.csv", sep = ",", h = T)
+
+iucn<-iucn.full[,c("Class", "Order", "Family", "Genus", "Species")]
+
+team<-merge(iucn, team, all.y = T)
+#added 5 taxonomic columns to the data set
+```
+
+Now run their home made function called "fix.dta".  This function appears to change the date/time formats for those rows with that information and also splits out camera start date and camera end date. Will need to get back to this later with our data. The resulting df "data" of theirs is now the working dataset, rather than "team".
+
+```{r}
+data<-fix.dta(team)
+```
+
+###Checking data
+Now we run through their steps for evaluating the data to check for issues
+
+First, look at the column names
+```{r}
+names(data)
+```
+Next, extract data from a single year of the dataset, also extract mammals only
+```{r}
+yr2009<-data[data$Sampling.Event == "2009.01" & data$Class =="MAMMALIA",]
+```
+Now, other than the temporal data, we have something more similar to our dataset, since ours has been filtered by workflow ID and workflow version.  Similar to their step of isolating to a particular year of data.
+
+Now lets see what species are in the data set and then remove the species we are not interested in, humans.
+
+```{r}
+unique(yr2009$bin)
+data<-droplevels(yr2009[data$bin != "Homo sapiens",] ) #this is their line of code, but it doesn't appear to be working.  Prior to this line, "data" has 76051 observations, but yr2009 has only 10623.  So since we are dropping data from yr2009, the result should be less than 10623 observations.  I'll try it differently with dplyr
+
+data<-filter(yr2009, bin != "Homo sapiens")#this seems to have worked.
+
+```
+Next, check the number of camera trap stations in the database.  
+```{r}
+unique(data$Sampling.Unit.Name)
+```
+For our data, we would check the number of camera stations by examining the number of unique values in "Camera"
+
+Then they look at their start and end dates
+```{r}
+unique(data$Camera.Start.Date.and.Time)
+```
+We would not be able to do this step without merging some temporal data into our file.
+
+##Deriving sampling effort, events, and species list
+
