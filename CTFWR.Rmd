@@ -234,5 +234,33 @@ Fig_5_6$RAI_dd<-(Fig_5_6$events_dd_species/Fig_5_6$Survey_effort)*100 #abundance
 There you go!  The resulting `Fig_5_6` data frame is the table that is shown as figure 5.6 in Chapter 5.
 
 ###Species Accumulation Curve
+Next the authors create a species accumulation curve to show the #of species detected as a function of trapping effort (camera days).  To do so, they use their `acc.curve` function. It takes the "data" dataframe,the year of data for analysis, and drops everything but mammals (which I thought already happened).  I suspect that the data frame they may actually be using is the *team* dataset, but we'll see.  The `acc.curve` function reshapes the data to make it ready for the vegan `specaccum` function so we'll need to pay close attention to how the data are reshaped (vegan usually requires columns of species names and rows of sites or cameras or whatever...)
 
+```{r}
+accumulation<-acc.curve(data, 2009.01)
+```
+
+This appears to have worked; the result is a dataframe with three columns: camera.trap.days (a sequence from 1 to the total number of camera trap days), species (the #species detected), and the sd estimate around #species.
+
+Let's look a little more closely at the resulting data frame:
+```{r}
+tail(accumulation, 10)
+```
+We see a total of 1876 camera trap days.  I need to figure out how the total number of camera trap days is determined, and, since multiple cameras are out for each single day, why the camera trap days variable is continuous 1:1876 rather than e.g. (if you had 10 cameras out) 10, 20, 30...an increment of 10 for each single date.
+
+Finally, we create the species accumulation curve:
+```{r}
+ggplot(accumulation, aes(x = Camera.trap.days, y = species))+
+	geom_line(aes(y = species - sd), 
+			color = "grey50",
+			linetype = "dotted")+
+	geom_line(aes(y = species +sd), 
+			color = "grey50", 
+			linetype = "dotted")+
+	geom_line()
+	
+```
+This produces figure 5.8 in the text.
+###Activity pattern
+The next section of the chapter is on examining activity patterns and making radial plots of activity.  I would ultimately like to do this, but need to work our own data through to the accumulation curve first.
 
