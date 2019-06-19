@@ -1,0 +1,25 @@
+Round,Date_Out,Date_Checked,Forest,CameraNum,ForestType,CamModel,UnitNumber,SDCardNum,NumPix,TreeSpecies,Orientation_degrees,BatteryLevel,Notes 
+1,11/15/18,3/4/19,Beaver Creek,4,Deciduous ,Bushnell HD,11,13,,Elm ,306,,Sounds of hunting. Porcupine in tree 
+1,11/15/18,3/4/19,Beaver Creek,2,Deciduous ,Bushnell HD,17,24,,Red Maple,178,,
+1,11/15/18,3/4/19,Beaver Creek,1,Deciduous ,Browning ,24,4,,Red Oak ,286,,
+1,11/15/18,3/4/19,Beaver Creek,3,Deciduous ,Browning ,30,20,,Red Maple,270,,
+1,11/26/18,2/7/19,Degrasse ,4,Pine ,Bushnell HD,8,23,294,White Pine ,0,,
+1,11/26/18,2/7/19,Degrasse ,2,Pine ,Bushnell HD,15,14,243,White Pine ,354,,
+1,11/26/18,2/7/19,Degrasse ,1,Pine ,Browning ,28,15,18,Red Pine ,298,,
+1,11/26/18,2/7/19,Degrasse ,3,Pine ,Browning ,29,19,540,Red Maple,18,,
+1,11/26/18,2/28/19,Donnverville ,2,Deciduous ,Bushnell HD,6,2,,Red Maple,200,,
+1,12/13/18,2/25/19,Donnverville ,4,Deciduous ,Bushnell HD,14,22,123,White Ash,172,3 bars ,7-batteries 
+1,11/26/18,2/28/19,Donnverville ,1,Deciduous ,Browning ,21,21,,White Ash,226,,
+1,12/12/18,2/25/19,Donnverville ,3,Deciduous ,Browning ,27,8,48,Yellow Birch,331,83% battery ,
+1,11/14/18,2/11/19,South Hammond ,4,Deciduous ,Bushnell HD,3,5,129,Red Pine ,142,2 bars ,Barbed wire at base of the tree 
+1,11/13/18,2/11/19,South Hammond ,2,Deciduous ,Bushnell HD,10,10,NA,White Pine ,146,,placed on a game trail 
+1,11/14/18,2/11/19,South Hammond ,3,Deciduous ,Browning ,23,3,120,White Pine ,304,,
+1,11/13/18,2/11/19,South Hammond ,1,Deciduous ,Browning ,25,9,86,Red Oak ,51,,placed on a game trail 
+1,12/6/18,1/24/19,Whippoorwill Corners ,4,Pine ,Bushnell HD,2,7,76,Red Maple,80,3 bars ,
+1,12/6/18,1/24/19,Whippoorwill Corners ,2,Pine ,Bushnell HD,18,16,67,White Pine ,92,3 bars ,
+1,12/6/18,1/24/19,Whippoorwill Corners ,1,Pine ,Bushnell HD,31,6,79,Red Pine ,58,82% battery ,
+1,12/6/18,1/24/19,Whippoorwill Corners ,3,Pine ,Browning ,32,17,367,Hemlock,138,77% battery,Hemlock is dead 
+1,11/27/18,1/31/19,Whiskey Flats ,4,Pine ,Bushnell HD,4,26,51,Red Pine ,240,2 bars ,yellow batteries 
+1,11/27/18,1/31/19,Whiskey Flats ,2,Pine ,Bushnell HD,9,25,6,Red Pine ,328,2 bars ,yellow batteries 
+1,11/27/18,1/31/19,Whiskey Flats ,1,Pine ,Browning ,22,18,375,Hemlock,224,55% battery ,
+1,11/27/18,1/31/19,Whiskey Flats ,3,Pine ,Browning ,33,1,207,Hemlock,70,50% battery ,

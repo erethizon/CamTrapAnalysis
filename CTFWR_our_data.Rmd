@@ -1,0 +1,78 @@
+---
+title: "Applying information from Camera trapping for wildlife research, Chapter 5, to our zooniverse data"
+output: html_notebook
+---
+
+##Introduction
+Chapter 5 in the book [Camera Trapping For Wildlife Research](https://pelagicpublishing.com/products/camera-trapping-for-wildlife-research) steps through the beginnings of a data analysis of a set of camera trapping data.  The authors provide the R code.  However, their data set is formatted from a different software than our is coming out of the Zooniverse, so we're going to have to modify the code somewhat to suit our needs.  In this notebook, I am attempting to complete the same steps as they do in Chapter 5, using a sample of our data.
+
+##Setup
+```{r}
+rm(list = ls())
+library(dplyr)
+library(ggplot2)
+library(readr)
+```
+Because .Rmd files can be a pain at working directories b/w code chunks, do the following:
+
+Set some directories; can toggle on and off as needed via commenting ## working through Chapter 5 case study
+```{r}
+lab_power_mac_TEAM<-"/Volumes/External Drive/Dropbox/R/NoCoWild/CamTrapAnalysis/Camera Trapping for Wildlife Research/Chapter 5"
+lab_power_mac<-"/Volumes/External Drive/Dropbox/R/NoCoWild/CamTrapAnalysis"
+# laptop_TEAM<-"~/Dropbox/R/NoCoWild/CamTrapAnalysis/Camera Trapping for Wildlife Research/Chapter 5"
+# laptop_dir<-"~/Dropbox/R/NoCoWild/CamTrapAnalysis"
+```
+
+Begin by sourcing the TEAM R scripts and loading the packages they recommend (which include ggplot2 already loaded above)
+```{r}
+setwd(lab_power_mac)
+source(paste0(lab_power_mac_TEAM,"/TEAM library 1.7.R"))
+
+library(chron)
+library(reshape)
+library(vegan)
+library(plotrix)
+library(maptools)
+```
+
+And finally let's pull in some flattened data, processed with some of our zooniverse post-processing scrpts into a "flattened" version.
+
+```{r}
+setwd(lab_power_mac)
+ours<-read_csv(paste0(lab_power_mac,"/sampledatasmall.csv-flattened.csv"))
+```
+Now I'm going to artificially reduce the dataset to include only one classification of each image event; this step will be taken care of with some other R scripts so as to get a correct species id for any samples that have more than one classification.
+```{r}
+ours<-ours %>% group_by(subject_ids) %>% filter(n()>1)
+ours
+```
+Went from 249 to 61 observations.
+
+##Prepare temporal data
+Here's some code from Kate Andy that I have modified for attaching temporal data to the dataset
+
+The final data frame did not contain dates. We need to add these in. We begin by grabbing the camera metadata for this phase of data collection:
+```{r}
+Metadata <- read.csv("/Volumes/External Drive/Dropbox/R/NoCoWild/CamTrapAnalysis/GameCameraField SheetsPhase12019.csv")
+Metadata<- select(Metadata, Date_Out, Date_Checked, SDCardNum, UnitNumber) 
+```
+We are aiming for a df that lists each camera, the date the camera began operating, ended operating, and the number of days that the camera was operational.  So from the Metadata DF we just created, we need to add the number of days that the camera was operations.  Let's turn on the lubridate package and do some date/time work
+
+```{r}
+library(lubridate)
+```
+Now convert to date formats and construct a new column of number of camera days
+
+```{r}
+Metadata$Date_Out<-mdy(Metadata$Date_Out)
+Metadata$Date_Checked <- mdy(Metadata$Date_Checked)
+	
+Metadata <- Metadata %>% mutate(CamDays = difftime(Date_Checked, Date_Out))
+summary(Metadata$CamDays)
+
+#now write to a table for later use
+write.csv(Metadata, "CamDaysPhase1.csv")
+```
+##Derive Events
+
+

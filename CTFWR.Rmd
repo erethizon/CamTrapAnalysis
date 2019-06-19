@@ -148,7 +148,7 @@ Now lets see what species are in the data set and then remove the species we are
 ```
 This is their line of code, but it doesn't appear to be working.  Prior to this line, "data" has 76051 observations, but yr2009 has only 10623.  So since we are dropping data from yr2009, the result should be less than 10623 observations.  
 
-I'll try it differently with dplyrHere's the dplyr version.
+I'll try it differently with dplyr Here's the dplyr version.
 ```{r}
 data<-filter(yr2009, bin != "Homo sapiens")#this seems to have worked.
 ```
@@ -156,24 +156,24 @@ Next, check the number of camera trap stations in the database.
 ```{r}
 unique(data$Sampling.Unit.Name)
 ```
-For our data, we would check the number of camera stations by examining the number of unique values in "Camera"
+**For our data, we would check the number of camera stations by examining the number of unique values in "Camera"**
 
 Then they look at their start and end dates
 ```{r}
 unique(data$Camera.Start.Date.and.Time)
 ```
-We would not be able to do this step without merging some temporal data into our file.
+**We would not be able to do this step without merging some temporal data into our file.**
 
 ##Deriving sampling effort, events, and species list
 ###Survey effort
-Next up in Chapter 5, the authors use temporal data in the data frame to derive the survey effort (measured in camera days where 1 camera out for 1 day = 1 camera day).  They do this with their own function called `cam.days`.  We will need to add temporal data and possibly write our own code for this step, but it is clearly a step we need to take.
+Next up in Chapter 5, the authors use temporal data in the data frame to derive the survey effort (measured in camera days where 1 camera out for 1 day = 1 camera day).  They do this with their own function called `cam.days`.  **We will need to add temporal data and possibly write our own code for this step, but it is clearly a step we need to take.**
 
 The required arguments for the `cam.days` function are the dataframe and the sampling period (or sampling year in their case).
 
 ```{r}
 camera_days<-cam.days(data, 2009.01)
 ```
-The end product, which we should construct for our own data, is a data frame that lists each camera, the day the camera started operating, ended operating, and then the number of days that the camera was operational.
+**The end product, which we should construct for our own data, is a data frame that lists each camera, the day the camera started operating, ended operating, and then the number of days that the camera was operational.**
 
 They write this dataframe to a table for use elsewhere and then capture some descriptive data, in particular min, max, median and quartiles of sampling effort:
 ```{r}
@@ -246,7 +246,7 @@ Let's look a little more closely at the resulting data frame:
 ```{r}
 tail(accumulation, 10)
 ```
-We see a total of 1876 camera trap days.  I need to figure out how the total number of camera trap days is determined, and, since multiple cameras are out for each single day, why the camera trap days variable is continuous 1:1876 rather than e.g. (if you had 10 cameras out) 10, 20, 30...an increment of 10 for each single date.
+We see a total of 1876 camera trap days.  **I need to figure out how the total number of camera trap days is determined, and, since multiple cameras are out for each single day, why the camera trap days variable is continuous 1:1876 rather than e.g. (if you had 10 cameras out) 10, 20, 30...an increment of 10 for each single date.**
 
 Finally, we create the species accumulation curve:
 ```{r}
@@ -261,6 +261,7 @@ ggplot(accumulation, aes(x = Camera.trap.days, y = species))+
 	
 ```
 This produces figure 5.8 in the text.
+
 ###Activity pattern
 The next section of the chapter is on examining activity patterns and making radial plots of activity.  I would ultimately like to do this, but need to work our own data through to the accumulation curve first.
 
