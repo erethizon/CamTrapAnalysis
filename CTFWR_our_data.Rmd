@@ -45,7 +45,10 @@ Now I'm going to artificially reduce the dataset to include only one classificat
 ```{r}
 ours<-ours %>% group_by(subject_ids) %>% filter(n()>1)
 ours
+#there appears to be an error here - there are still repeated subject ids
 ```
+This step returned a new DF of all of the rows for which there was more than 1 of the same subject.
+
 Went from 249 to 61 observations.
 
 ##Prepare temporal data
@@ -74,5 +77,105 @@ summary(Metadata$CamDays)
 write.csv(Metadata, "CamDaysPhase1.csv")
 ```
 ##Derive Events
+In order to derive events, we need to know the actual date_time at which each event occurred, rather than just the number of camera days per camera (that was produced in Metadata, above).  To get this information, we're going to have to open one of the image metadata files (extract image metadata.Rmd) and join the image date_time stamp with the image id in the zooniverse output.
+
+###Pull in and clean up image metadata
+```{r}
+Images_by_event <- read_csv("/Volumes/External Drive/Dropbox/R/Zooniverse_work/Round1/Images_by_event.csv")
+```
+Now let's dump columns we don't need
+
+```{r}
+Images_by_event <- Images_by_event %>% select(FileName, DateTimeOriginal, Event)
+```
+Now we need to join Images_by_event to ours and try to get event start times.  To do so, we need matching column names.  We'd like the FileName column in Images_by_event to match the Image1 column name in ours.
+
+```{r}
+#fix column names
+colnames(Images_by_event)[1] <- "Image1" #changed the one in Images_by_event because I didn't have to count as high with the index number
+
+Complete<- ours %>% full_join(Images_by_event, by = "Image1")
+```
+Now we need to delete the rows from the join that are just "NA"
+```{r}
+Dump<-which(is.na(Complete$classification_id))
+Complete<- Complete[-Dump,]
+```
+Good.  Now we have all the event times for each event.  Let's try their method with event.sp.  Instead of providing a year, we will pass the workflow column (could be any column for which the value for each event is the same)
+```{r}
+# events_hh<-event.sp(dtaframe = Complete, year = (Complete$task_index ==1), thresh = 60)
+```
+Their function doesn't work, which makes sense in that their data has not yet been seperated into events, but ours has.  So we are trying to recast the data into one data frame where events are the number per hour and into another where events are events per day, by species.
+
+I'd also like to simply try events, by species.
+
+####Events by species
+First, remove the columns we don't need, which are many
+```{r}
+KeepVars<-c("classification_id", "subject_ids","choice","DateTimeOriginal", "Camera", "Event")
+CastThese<-Complete %>% select(KeepVars)
+```
+Next, we need to obtain events per camera per hour and events per camera per day, all by species.  We will cast the data to be camera number as rows and species as columns, but we need to fill the cells with in the first data frame, #events per hour, and in the second DF, # events per day.
+
+#####Events Per Hour
+Now we should assign each event to an hour and to a day so that we can count events per hour and per day per species.
+
+```{r}
+CastThese<-CastThese[order(CastThese$DateTimeOriginal),]
+thresh<-(60*60) #number of seconds X number of minutes =  number seconds in an hour
+
+ev<-vector()#empty event holding vector
+L<-length(CastThese$DateTimeOriginal) #set counting variable
+
+for (i in 1:L){
+	interval<-diff(CastThese$DateTimeOriginal, units = "mins")
+	ev<-1; eventHour<-numeric() #set ev to value of 1 and create empty variable to store which hour the event occurs in
+}
+	cond<- interval > thresh #sets condition for assigning to a new hour
+for (i in 1:(L-1)){
+	if (!cond[i]) ev <-ev else ev <-ev+1
+	eventHour<-c(eventHour, ev)
+}
+	Event_hh<-c(1, eventHour)
+
+```
+Now append the Event to the data frame csv to capture the event assignment for each image.
+```{r}
+CastThese$Event_hh<-Event_hh
+test<-tail(CastThese, 10)
+```
 
 
+
+
+Code from Extract_Image_Metadata.Rmd:
+This seems to be working!  Now let's see if we can assign images to events using this logic.  We will need to set the time threshold (default is 1 minute).
+
+```{r}
+# thresh<-60 #set a threshold for number of seconds between events
+# ev<-vector()
+# L <- length(Round1_Batch1$DateTimeOriginal)
+# 
+# for(i in 1:length(Round1_Batch1$DateTimeOriginal)){
+#      interval<-diff(Round1_Batch1$DateTimeOriginal)
+#      #now convert to minutes
+#      
+#      ev<-1; Event_num<-numeric() #created new var called ev and set to 1, created empty numeric vector called Event_num. Event_num will store the assigned event for each image
+#    }
+# cond<- interval > thresh #sets condition for assigning to a new event where minutes corresponds to thresh
+#    
+#    for(i in 1:(L-1)){
+#       if(!cond[i]) ev<-ev else ev<-ev+1
+#       Event_num<-c(Event_num,ev)
+#    }
+#   Event<-c(1,Event_num)
+# 
+# ```
+# Now append the Event to the data frame csv to capture the event assignment for each image.
+# ```{R}
+# Round1_Batch1$Event<-Event
+# 
+# test<-tail(Round1_Batch1, 60)
+```
+
+eventHour

@@ -2,7 +2,7 @@
 title: "Dealing with different identifications of the same animal"
 output: html_notebook
 ---
-
+##Introduction
 Because we host our project on the zooniverse, it is possible to have multiple people score each event, which means we may not get the same answers for each event in terms of species id, behavior, etc.
 
 To that end, we need a way to check which events have differences in their identifications of species and of e.g. behaviors.  Once those events are identified, we need an efficient way to go back to those events and make a final appraisal of their contents.
@@ -11,19 +11,47 @@ The following bunch of R scripts takes the flattened classfication file produced
 
 1. Identify which events have more than one classification
 2. For those events with more than 1 classification, determine which ones have more than one species identified.
+3. For those events with more than 1 species identified, determine which species will be assigned to the event. (An alternative, less good temporary step is to simply take the first classification for each event for which there are duplicate classifications)
+
+##Prep the workspace
 
 ```{r}
 #set up workspace
 rm(list = ls())
 library(dplyr)
 library(ggplot2)
+library(magrittr)
+library(stringr)
+library(tidyr)
 ```
+Pull in the data file
 ```{r}
-#pull in the data file
 classification_file<-"sampledatasmall.csv-flattened.csv"
 library(readr)
 DF<- read_csv(classification_file)
 ```
+
+Source TEAM library scripts
+```{r}
+source("/Volumes/External Drive/Dropbox/R/NoCoWild/CamTrapAnalysis/Camera Trapping for Wildlife Research/Chapter 5/TEAM Library 1.7.R")
+```
+Summarize the data and create a new column that has a count of how many unique identifications, and tallies how many people identified each new photo.
+```{r}
+DF %>% summarise(n_distinct(subject_ids), n_distinct(classification_id)) 
+```
+With this example file, there are 218 distinct subject ids and 249 distinct classifications.  The difference $$248-218 = 31$$ should be subjects that were classified more than once.
+
+```{r}
+New<- DF %>% 
+     group_by(subject_ids) %>% # count up the number of distinct classification IDs
+     mutate(., num_class = n_distinct(classification_id)) %>% #because there will be >1 row per classification_id if >1 spp
+     arrange(., subject_ids, classification_id) 
+
+New %>% View
+```
+Now in the New data frame we can see the column `num_class` identifies the number of times each subject id was classified. 
+
+
 
 Now let's find the repeats
 ```{r}
