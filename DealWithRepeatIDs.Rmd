@@ -51,23 +51,83 @@ New %>% View
 ```
 Now in the New data frame we can see the column `num_class` identifies the number of times each subject id was classified. 
 
+##Clean up multiple votes per user
+Now that we've identified which subject ids have more than one classification we should clean them up so that we can have a single species classification for each event.
 
-
-Now let's find the repeats
+Code from the Zooniverse 
 ```{r}
-Repeats<-DF %>% group_by(subject_ids) %>% filter(n()>1)
+check_spp_counts <- New %>% 
+     group_by(subject_ids, classification_id) %>% 
+     mutate(., num_species = n_distinct(choice), check_num_spp = n())
+```
+Quickly, this shows us how many distinct species were assigned and then checks the number of species.
+
+Let's just look at the repeats to see if the code seems to work:
+
+```{r}
+Repeats<-check_spp_counts %>% group_by(subject_ids) %>% filter(n()>1)
 Repeats
 
 #gives those subject ids that appear more than once
 ```
-Now see if I can get a list of species ids for each subject that was classified more than once.  Try looping through the data by subject id's and putting answers in a new DF
+In this particular case, none of the events were classified as more than a single species, so we just need to remove the repeated case of each event from the df for further processing.
 
-First, determine how many there are of each subject id
+If we had seen that some events were classified as different species, go below to the section called XXXXXXXXX to see what to do.
 
+##Check for duplicates
+Now we check for duplicates
+Need to use function Zooniverse people created
 ```{r}
+check_dups <- function(New) {
+     # This function groups by subject and classification ID (which is per user/classification), 
+     # then checks whether the number of unique species == the number of submissions. 
+     # So, if a person selects lion & zebra, num_species and check_num_species will both = 2. 
+     # If a person selects lion, 1, standing and lion, 1, sitting, then num_species = 1 and check_num_species = 2.
+     # Note that this error will not be possible in future projects.
+     # Also note that we can't actually combine answers in a generalized way, 
+     # because "how many" is actually categorical and the values differ for all projects.
+     bad_counts <- New %>% 
+          group_by(subject_ids, classification_id) %>% 
+          mutate(., num_species = n_distinct(choice), check_num_spp = n()) %>%
+          filter(., num_species != check_num_spp) 
+     check <- bad_counts %>% nrow() %>% as.numeric()
+     
+     if(check > 0) {
+          print("You've got duplicates, dammit")
+          return(bad_counts)
+     } else if(check == 0) {
+          print("You've got no duplicates! Well done!")
+     }
+}
 
-repeatSubjects<-unique(Repeats$subject_ids)
-
-
-#so repeatSubjects is the list of subjects that repeat > 1 time.  Can use it to loop if needed.
 ```
+Now run the function
+```{r}
+bad_counts<- check_dups(check_spp_counts)
+```
+We can just run the next code chunk - creates `cleaned_classifications` as the correct dataset, dropping duplicates where necessary
+```{r}
+if(is.null(dim(bad_counts))) {
+     print("No duplicates to drop")
+     cleaned_classifications <- check_spp_counts
+} else {
+     # NOTE that I don't know how you combine different answers for a single choice questions, thus, this just takes the FIRST anser
+     print(paste("Dropping", dim(check_dups(raw_data))[1], "duplicate classifications"))
+     
+     cleaned_classifications <- raw_data %>% group_by(subject_ids, classification_id) %>% 
+          mutate(., num_species = n_distinct(choice)) %>%
+          group_by(., subject_ids, classification_id, num_class, num_species, choice) %>% 
+          #summarise_all(., sum) # adds up counts for duplicates of spp, only works if everything is numeric
+          summarise_all(., first) # takes the first record per user per species classification
+}
+
+
+
+check_dups(cleaned_classifications)
+
+```
+At this point though, our list of 249 observations still includes the repeated rows.  We need to reduce the data set so that there is just a single classification per event so as to avoid extra couning of events.
+
+
+
+
